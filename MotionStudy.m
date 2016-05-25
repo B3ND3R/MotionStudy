@@ -27,18 +27,18 @@ function varargout = MotionStudy(varargin)
 % Begin initialization code - DO NOT EDIT
 addpath('Calibration', 'Common', 'FeatIdent','ImageProc','MotionEst','Results')
 addpath(['.',filesep,'MotionEst',filesep,'Init'],...
-        ['.',filesep,'MotionEst',filesep,'Models'],...
-        ['.',filesep,'MotionEst',filesep,'Stereo'],...
-        ['.',filesep,'MotionEst',filesep,'TrajEst'])
+    ['.',filesep,'MotionEst',filesep,'Models'],...
+    ['.',filesep,'MotionEst',filesep,'Stereo'],...
+    ['.',filesep,'MotionEst',filesep,'TrajEst'])
 
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @MotionStudy_OpeningFcn, ...
-                   'gui_OutputFcn',  @MotionStudy_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
-               
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @MotionStudy_OpeningFcn, ...
+    'gui_OutputFcn',  @MotionStudy_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
+
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -76,7 +76,7 @@ handles.options.working = pwd;
 
 %add subdirectories
 
-%store defualt data directory 
+%store defualt data directory
 handles.options.path = ['C:',filesep];
 handles.options.cams = [];
 
@@ -88,7 +88,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = MotionStudy_OutputFcn(hObject, eventdata, handles) 
+function varargout = MotionStudy_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -168,9 +168,9 @@ fprintf('The following cams are available for delacing:\n')
 for cc = 1:length(cam_fold)
     cams(cc) = str2double(cam_fold(cc).name(4:6));
     fprintf('%d, ',cams(cc))
-%     if round(cc/5) ~= cc/5
-%         fprintf('\n')
-%     end
+    %     if round(cc/5) ~= cc/5
+    %         fprintf('\n')
+    %     end
 end
 fprintf('\b\b\n')
 cams2delace = input('Which Cams would you like to delace?:');
@@ -181,7 +181,8 @@ for cc = 1:length(cams2delace)
     while length(cam_num)<3
         cam_num = ['0',cam_num];
     end
-    vid_slice([handles.options.path,filesep,'Cam',cam_num],['cam',cam_num,'.MP4'],'png')
+    command=['!delace',' ',[handles.options.path,filesep,'Cam',cam_num,filesep,'cam',cam_num,'.MP4'],' ',[handles.options.path,filesep,'Cam',cam_num]];
+    eval(command);
 end
 
 function vid_slice(dirname,filename, im_type)
@@ -242,7 +243,7 @@ h = fspecial('gaussian',[7,7]);
 scale = 6;
 for cc = handles.options.cams
     if ~isfield(handles.Cam(cc), 'features')
-        handles.Cam(cc).features = []; 
+        handles.Cam(cc).features = [];
     end
     if ~isempty(handles.Cam(cc).features)
         y = input(sprintf('Features for Camera %d have already been computed.  Do you want to recompute [Y or N]?',cc),'s');
@@ -255,36 +256,36 @@ for cc = handles.options.cams
     images = dir([handles.options.path,filesep,'Cam', num2str(cc), filesep, '*.png']);
     for ii = 1:length(images)-1
         if ~isnan(handles.Cam(cc).b_box(ii,:)) && ~handles.Cam(cc).b_box(ii,:)==0
-        %get previously computed region of interest
-        xc = handles.Cam(cc).b_box(ii,1);
-        yc = handles.Cam(cc).b_box(ii,2);
-        xw = handles.Cam(cc).b_box(ii,3);
-        yw = handles.Cam(cc).b_box(ii,4);
-        %read the image
-        img = imread( [handles.options.path,filesep,'Cam', num2str(cc), filesep, images(ii).name]);
-        %contrast adjust the image
-        imgFilt=imadjust(img(yc:yc+yw,xc:xc+xw,:),[0 0 0; 0.1 0.1 0.1],[]);
-        %convert the color image to grayscale
-        imgFilt=rgb2gray(imgFilt);
-        %enlarge the image
-        imgFilt=imresize(imgFilt,scale);
-        %filter the image
-        G=fspecial('gaussian',[10 10],3);
-        imgFilt = imfilter(imgFilt,G,'same');
-        %find the surf features
-        points=detectSURFFeatures(imgFilt,'MetricThreshold',400,'NumScaleLevels',6);
-        %featpoints=points.selectStrongest(600).Location;
-        %points = detectSURFFeatures(gray);
-        handles.Cam(cc).features{ii} = points.selectStrongest(200);
-        handles.Cam(cc).features{ii}.Location(:,1) = handles.Cam(cc).features{ii}.Location(:,1)/scale + xc;
-        handles.Cam(cc).features{ii}.Location(:,2) = handles.Cam(cc).features{ii}.Location(:,2)/scale + yc;
-        figure(1)
-        imshow(img)
-        hold on
-        plot(handles.Cam(cc).features{ii}.Location(:,1), handles.Cam(cc).features{ii}.Location(:,2),'+r')
-        hold off
-        %pause
-        guidata(hObject, handles);
+            %get previously computed region of interest
+            xc = handles.Cam(cc).b_box(ii,1);
+            yc = handles.Cam(cc).b_box(ii,2);
+            xw = handles.Cam(cc).b_box(ii,3);
+            yw = handles.Cam(cc).b_box(ii,4);
+            %read the image
+            img = imread( [handles.options.path,filesep,'Cam', num2str(cc), filesep, images(ii).name]);
+            %contrast adjust the image
+            imgFilt=imadjust(img(yc:yc+yw,xc:xc+xw,:),[0 0 0; 0.1 0.1 0.1],[]);
+            %convert the color image to grayscale
+            imgFilt=rgb2gray(imgFilt);
+            %enlarge the image
+            imgFilt=imresize(imgFilt,scale);
+            %filter the image
+            G=fspecial('gaussian',[10 10],3);
+            imgFilt = imfilter(imgFilt,G,'same');
+            %find the surf features
+            points=detectSURFFeatures(imgFilt,'MetricThreshold',400,'NumScaleLevels',6);
+            %featpoints=points.selectStrongest(600).Location;
+            %points = detectSURFFeatures(gray);
+            handles.Cam(cc).features{ii} = points.selectStrongest(200);
+            handles.Cam(cc).features{ii}.Location(:,1) = handles.Cam(cc).features{ii}.Location(:,1)/scale + xc;
+            handles.Cam(cc).features{ii}.Location(:,2) = handles.Cam(cc).features{ii}.Location(:,2)/scale + yc;
+            figure(1)
+            imshow(img)
+            hold on
+            plot(handles.Cam(cc).features{ii}.Location(:,1), handles.Cam(cc).features{ii}.Location(:,2),'+r')
+            hold off
+            %pause
+            guidata(hObject, handles);
         end
     end
 end
@@ -319,10 +320,10 @@ function point_pick_Callback(hObject, eventdata, handles)
 
 %handles.Cam = track_points_im(handles.Cam,handles.options.path);
 setappdata(0,'MStudyHands', handles);
-try 
+try
     PointPropagatorV1
-    uiwait 
-catch ME, 
+    uiwait
+catch ME,
     MStudyHandles = getappdata(0,'MStudyHands');
 end
 MStudyHandles = getappdata(0,'MStudyHands');
@@ -390,10 +391,10 @@ if exist([handles.options.path,filesep,'CamStruct.mat'],'file') %If there is a d
         if exist([handles.options.path,filesep,'StereoStruct.mat'],'file')
             load([handles.options.path,filesep,'StereoStruct.mat'])
         end
-               
+        
         for cc = 1:length(handles.Cam) %for each camera, load the data
-            if isempty(handles.Cam(cc).start_frame) 
-            	continue;  %if start_frame is an empty matrix there was no data imported for that camera
+            if isempty(handles.Cam(cc).start_frame)
+                continue;  %if start_frame is an empty matrix there was no data imported for that camera
             end
             handles.options.cams = [handles.options.cams, cc];
         end
@@ -445,14 +446,14 @@ cams = [];
 for cc = 1:ncam
     cam_num = str2double(cam_folders(cc).name(4:6));
     if ~isempty(dir([handles.options.path,filesep,cam_folders(cc).name,filesep,'*.png']))
-    cams = [cams, cam_num];
+        cams = [cams, cam_num];
     end
 end
 
 if isempty(cams);
     fprintf('No images found in this project.  Delace images before proceeeding.\n')
 else
-    fprintf('The following cameras have delaced images: \n'); 
+    fprintf('The following cameras have delaced images: \n');
     for cc = cams; fprintf('%i\t',cc); end; fprintf('\n');
     user_spec = input('Which cams would you like to use? Enter = all:');
     if isempty(user_spec)
@@ -461,7 +462,7 @@ else
         handles.options.cams = user_spec;
     end
 end
-    
+
 for cc = handles.options.cams
     img_list = dir([handles.options.path,filesep,cam_folders(cc==handles.options.cams).name,filesep,'*.png']);
     timesteps = [];
@@ -475,7 +476,7 @@ for cc = handles.options.cams
     handles.Cam(cc).end_frame   = max(timesteps);
 end
 guidata(hObject, handles);
-    
+
 
 
 % --------------------------------------------------------------------
@@ -563,7 +564,7 @@ for c = cams
     fprintf('Rectifying Points from Camera %d ... \n',c)
     pt = 0;
     %load([handles.options.path,filesep,'..',filesep,'Calibration_run',filesep,'Intrinsic',filesep,'CalTech',filesep,'Cam',num2str(c),filesep,'int_cam',num2str(c),'.mat'], 'KK','kc','alpha_c','fc','cc');
-   
+    
     handles.Cam(c).pts_rect = NaN*zeros(size(handles.Cam(c).pts));
     pts = 1:size(handles.Cam(c).pts,3);
     for pp = pts
@@ -572,7 +573,7 @@ for c = cams
             %if the point is occluded the value will be NaN
             point = handles.Cam(c).pts(:,kk,pp);
             point_ud = rm_distortion(point, handles.Cam(c).K, handles.Cam(c).fc,...
-                       handles.Cam(c).cc, handles.Cam(c).alpha_c, handles.Cam(c).kc);
+                handles.Cam(c).cc, handles.Cam(c).alpha_c, handles.Cam(c).kc);
             handles.Cam(c).pts_rect(:,kk,pts(pt)) = point_ud;
         end
     end
@@ -596,11 +597,11 @@ for cam = cams
         plot(handles.Cam(cam).pts(1,:,pp)',handles.Cam(cam).pts(2,:,pp)','+r');
         plot(handles.Cam(cam).pts(1,:,pp)',handles.Cam(cam).pts(2,:,pp)','-b');
         %plot the undistorted features
-%         plot(handles.Cam(cam).pts_rect(1,:,pp)',handles.Cam(cam).pts_rect(2,:,pp)','og');
-%         plot(handles.Cam(cam).pts_rect(1,:,pp)',handles.Cam(cam).pts_rect(2,:,pp)','-k');    
-%         %plot the synchronized featured
-%         plot(handles.Cam(cam).pts_sync(1,:,pp)',handles.Cam(cam).pts_sync(2,:,pp)','^b');
-%         plot(handles.Cam(cam).pts_sync(1,:,pp)',handles.Cam(cam).pts_sync(2,:,pp)','-m');  
+        %         plot(handles.Cam(cam).pts_rect(1,:,pp)',handles.Cam(cam).pts_rect(2,:,pp)','og');
+        %         plot(handles.Cam(cam).pts_rect(1,:,pp)',handles.Cam(cam).pts_rect(2,:,pp)','-k');
+        %         %plot the synchronized featured
+        %         plot(handles.Cam(cam).pts_sync(1,:,pp)',handles.Cam(cam).pts_sync(2,:,pp)','^b');
+        %         plot(handles.Cam(cam).pts_sync(1,:,pp)',handles.Cam(cam).pts_sync(2,:,pp)','-m');
     end
     title(['Camera ',num2str(cam)]);
 end
@@ -693,7 +694,7 @@ import_struct = load([pathname,filename]);
 Cam = handles.Cam;
 ncam = length(Cam);
 
-fields_orig = fieldnames(Cam); 
+fields_orig = fieldnames(Cam);
 %%IMPORT MISSING FIELDS OF DATA
 %for each camera in the current project, determine if there are missing
 %data that exist in the project being imported.
@@ -724,9 +725,9 @@ for c = 1:ncam
     %structure.
     for ff = 1:length(fields_orig);
         if overlap(ff)
-           Cam(c).(fields_orig{ff}) = import_struct.Cam(c).(fields_orig{ff});
+            Cam(c).(fields_orig{ff}) = import_struct.Cam(c).(fields_orig{ff});
         end
-    end   
+    end
 end
 
 %%IMPORT MISSING POINTS
@@ -740,7 +741,7 @@ for c = 1:ncam
         end
     end
     if sum(import_fields)==0
-       continue 
+        continue
     end
     fprintf('Merging point data from camera %d...\n',c)
     %determine difference in start frames
